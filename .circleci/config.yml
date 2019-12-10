@@ -1,0 +1,90 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version you desire here
+      - image: circleci/node:dubnium
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/mongo:3.4.4
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      # Global dependencies
+      - run:
+          name: installing sftp dependencies
+          command: 'sudo apt-get install -y lftp'
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run:
+          name: installing yarn dependencies
+          command: yarn install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      # run build!
+      - run:
+          name: build project
+          command: yarn build
+
+      - run:
+          name: copy package.json
+          command: cp package.json dist/
+
+      - persist_to_workspace:
+          root: ~/repo
+          paths:
+            - dist
+
+  deploy:
+    machine:
+      enabled: true
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - '89:ea:55:fe:16:73:b6:a2:e5:48:49:36:09:55:86:a1'
+      - attach_workspace:
+          at: dist
+
+      - run:
+          name: Clean up previous release
+          command: ssh $SFTP_USER@$SFTP_HOST -p 3022 "PATH=$PATH:~/.nvm/versions/node/v10.16.0/bin; rm -rf ~/projects/site_watcher/scrapper; mkdir ~/projects/site_watcher/scrapper; cd ~/projects/site_watcher/; pm2 stop ecosystem.config.js --only sitewatcher_scrapper  || true"
+      - run:
+          name: deploy
+          command: scp -P 3022 -r dist/dist/* $SFTP_USER@$SFTP_HOST:~/projects/site_watcher/scrapper
+      - run:
+          name: start server
+          command: ssh $SFTP_USER@$SFTP_HOST -p 3022 "PATH=$PATH:~/.nvm/versions/node/v10.16.0/bin;cd ~/projects/site_watcher/scrapper; yarn; pm2 start ~/ecosystems/sitewatcher_ecosystem.config.js --only sitewatcher_scrapper"
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: master
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
