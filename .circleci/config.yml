@@ -66,13 +66,13 @@ jobs:
 
       - run:
           name: Clean up previous release
-          command: ssh $SFTP_USER@$SFTP_HOST -p 3022 "PATH=$PATH:~/.nvm/versions/node/v10.16.0/bin; rm -rf ~/projects/site_watcher/scrapper; mkdir ~/projects/site_watcher/scrapper; cd ~/projects/site_watcher/; pm2 delete ecosystem.config.js --only sitewatcher_scrapper  || true"
+          command: ssh $SFTP_USER@$SFTP_HOST -p 3022 "PATH=$PATH:~/.nvm/versions/node/v10.16.0/bin; rm -rf ~/projects/site_watcher/scrapper; mkdir ~/projects/site_watcher/scrapper; cd ~/projects/site_watcher/; pm2 delete ecosystem.config.js --only sw_scrapper  || true"
       - run:
           name: deploy
           command: scp -P 3022 -r dist/dist/* $SFTP_USER@$SFTP_HOST:~/projects/site_watcher/scrapper
       - run:
           name: start server
-          command: ssh $SFTP_USER@$SFTP_HOST -p 3022 "PATH=$PATH:~/.nvm/versions/node/v10.16.0/bin;cd ~/projects/site_watcher/scrapper; yarn; pm2 start ~/ecosystems/sitewatcher_ecosystem.config.js --only sitewatcher_scrapper"
+          command: ssh $SFTP_USER@$SFTP_HOST -p 3022 "PATH=$PATH:~/.nvm/versions/node/v10.16.0/bin;cd ~/projects/site_watcher/scrapper; yarn; pm2 start ~/ecosystems/sitewatcher_ecosystem.config.js --only sw_scrapper"
 
 workflows:
   version: 2
