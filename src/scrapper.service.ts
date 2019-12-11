@@ -26,11 +26,11 @@ export class ScrapperService {
     this.logger.log(`${sites.length} sites founded`);
 
     for (const site of sites) {
-      const _site = await this.cheerioService.handleSite(site);
-      if (_site) {
+      const temp = await this.cheerioService.handleSite(site);
+      if (temp) {
         try {
           const res = await this.client
-            .send<any, any>('updateSite', _site)
+            .send<any, any>('updateSite', temp)
             .toPromise();
           this.logger.log(res);
         } catch (error) {

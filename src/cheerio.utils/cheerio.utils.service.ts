@@ -23,21 +23,16 @@ export class CheerioUtilsService {
     });
   }
 
-  async handleSite(_site: any): Promise<any> {
-    const data = await this.resolveSite(_site);
+  async handleSite(temp: any): Promise<any> {
+    const data = await this.resolveSite(temp);
     if (data) {
       return await this.scrapSite(data);
-      //   const updateOp = await this.dbClient
-      //     .send<any, any>('updateSite', site)
-      //     .toPromise();
-
-      //   this.logger.log(updateOp);
     }
     return Promise.resolve();
   }
 
-  private resolveSite(_site: any): Promise<any> {
-    const site = Object.assign({}, _site);
+  private resolveSite(temp: any): Promise<any> {
+    const site = Object.assign({}, temp);
     return new Promise((resolve, reject) => {
       request(site.url, (error, response, html) => {
         if (error || (response && response.statusCode !== 200)) {
@@ -48,8 +43,6 @@ export class CheerioUtilsService {
           resolve();
         } else {
           const $ = cheerio.load(html);
-          //   console.log('Fetching ' + site.url);
-          //   console.log('Anchor selector: ' + site.selector_chapter);
           const chapterCount = this.getChapterCount($, site);
           if (chapterCount > site.chapter_count) {
             // notify
@@ -58,14 +51,9 @@ export class CheerioUtilsService {
             }
 
             site.chapter_count = chapterCount;
-            // update value
-            //   console.log('Updating: ', site.name);
-            // this.dbClient.send<any, any>('updateSite', site).toPromise();
-            // const _site = updateSiteRecord(site, chapterCount, $);
-            // this.logger.writeLog(_site, 'Updated', old, chapterCount);
             resolve({
-              _site: site,
-              $: $,
+              temp: site,
+              cheerio$: $,
             });
           } else {
             this.logger.log(`${site.name} is up to date`);
@@ -77,25 +65,25 @@ export class CheerioUtilsService {
     });
   }
 
-  private scrapSite({ _site, $ }): Promise<any> {
-    const site = Object.assign({}, _site);
+  private scrapSite({ temp, cheerio$ }): Promise<any> {
+    const site = Object.assign({}, temp);
     return new Promise((resolve, reject) => {
       site.watched = false;
       site.last_update = moment().format('YYYY-MM-DD');
 
-      let _chapterDate = $(site.selector_date)
+      const tempChapDate = cheerio$(site.selector_date)
         .first()
         .text()
         .trim()
         .replace('.', '');
-      site.chapter_date = moment(_chapterDate, site.format_date).format(
+      site.chapter_date = moment(tempChapDate, site.format_date).format(
         'YYYY-MM-DD',
       );
 
-      site.status = $('dt')
+      site.status = cheerio$('dt')
         .filter(function() {
           return (
-            $(this)
+            cheerio$(this)
               .text()
               .trim() === 'Estado'
           );
@@ -104,14 +92,14 @@ export class CheerioUtilsService {
         .text()
         .trim();
 
-      site.chapter_last_published = $('.chapters a')
+      site.chapter_last_published = cheerio$('.chapters a')
         .filter((index, anchor) => {
           return (
-            $(anchor).attr('href') !== undefined &&
-            $(anchor).attr('href') !== null &&
-            $(anchor).attr('href') !== '' &&
-            !/download/.test($(anchor).attr('href')) &&
-            !/chapter_link/.test($(anchor).attr('class'))
+            cheerio$(anchor).attr('href') !== undefined &&
+            cheerio$(anchor).attr('href') !== null &&
+            cheerio$(anchor).attr('href') !== '' &&
+            !/download/.test(cheerio$(anchor).attr('href')) &&
+            !/chapter_link/.test(cheerio$(anchor).attr('class'))
           );
         })
         .first()

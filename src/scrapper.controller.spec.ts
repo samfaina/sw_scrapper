@@ -14,9 +14,9 @@ describe('AppController', () => {
     scrapperController = app.get<ScrapperController>(ScrapperController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(scrapperController.getHello()).toBe('Hello World!');
-    });
-  });
+  // describe('root', () => {
+  //   it('should return "Hello World!"', () => {
+  //     expect(scrapperController.getHello()).toBe('Hello World!');
+  //   });
+  // });
 });
