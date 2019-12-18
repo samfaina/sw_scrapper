@@ -123,9 +123,6 @@ export class CheerioUtilsService {
         !/chapter_link/.test($(anchor).attr('class'))
       );
     }).length;
-    //   console.log('Chapter count stored: ' + site.chapter_count);
-    //   console.log('Chapter count finded: ' + chapterCount);
-    // const old = site.chapter_count;
     return chapterCount;
   }
 }
