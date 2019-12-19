@@ -12,7 +12,7 @@ export class CheerioUtilsService {
 
   constructor(private readonly socketFactory: SocketClientFactory) {
     this.client = ClientProxyFactory.create(
-      this.socketFactory.createDBClient(),
+      this.socketFactory.createPushClient(),
     );
   }
 

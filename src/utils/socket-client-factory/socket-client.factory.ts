@@ -12,4 +12,14 @@ export class SocketClientFactory {
       },
     };
   }
+
+  createPushClient(): ClientOptions {
+    return {
+      transport: Transport.TCP,
+      options: {
+        host: process.env.SW_PUSH_MICRO_HOST,
+        port: +process.env.SW_PUSH_MICRO_PORT,
+      },
+    };
+  }
 }
