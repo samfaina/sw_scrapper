@@ -1,26 +1,19 @@
 import { Injectable, Logger } from '@nestjs/common';
-import {
-  ClientProxy,
-  ClientProxyFactory,
-  Transport,
-} from '@nestjs/microservices';
+import { ClientProxy, ClientProxyFactory } from '@nestjs/microservices';
 import * as cheerio from 'cheerio';
 import * as moment from 'moment';
 import * as request from 'request';
+import { SocketClientFactory } from '../socket-client-factory/socket-client.factory';
 
 @Injectable()
 export class CheerioUtilsService {
   private logger = new Logger('CheerioUtilsService');
   private client: ClientProxy;
 
-  constructor() {
-    this.client = ClientProxyFactory.create({
-      transport: Transport.TCP,
-      options: {
-        host: '127.0.0.1',
-        port: 8877,
-      },
-    });
+  constructor(private readonly socketFactory: SocketClientFactory) {
+    this.client = ClientProxyFactory.create(
+      this.socketFactory.createDBClient(),
+    );
   }
 
   async handleSite(temp: any): Promise<any> {
@@ -58,7 +51,6 @@ export class CheerioUtilsService {
           } else {
             this.logger.log(`${site.name} is up to date`);
             resolve();
-            // logger.writeLog(site, 'UpToDate', old, chapterCount);
           }
         }
       });

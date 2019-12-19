@@ -1,24 +1,20 @@
 import { Injectable, Logger } from '@nestjs/common';
-import {
-  ClientProxy,
-  ClientProxyFactory,
-  Transport,
-} from '@nestjs/microservices';
-import { CheerioUtilsService } from './cheerio.utils/cheerio.utils.service';
+import { ClientProxy, ClientProxyFactory } from '@nestjs/microservices';
+import { CheerioUtilsService } from './utils/cheerio/cheerioutils.service';
+import { SocketClientFactory } from './utils/socket-client-factory/socket-client.factory';
 
 @Injectable()
 export class ScrapperService {
   private logger = new Logger('ScrapperService');
   private client: ClientProxy;
 
-  constructor(private readonly cheerioService: CheerioUtilsService) {
-    this.client = ClientProxyFactory.create({
-      transport: Transport.TCP,
-      options: {
-        host: '127.0.0.1',
-        port: 8876,
-      },
-    });
+  constructor(
+    private readonly cheerioService: CheerioUtilsService,
+    private readonly socketFactory: SocketClientFactory,
+  ) {
+    this.client = ClientProxyFactory.create(
+      this.socketFactory.createDBClient(),
+    );
   }
 
   async wathSites() {

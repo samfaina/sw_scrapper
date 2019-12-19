@@ -10,7 +10,7 @@ export class ScrapperController {
     cron.schedule('*/15 * * * *', () => {
       this.logger.log('running a task every 15 minutes');
       this.scrapperService.wathSites();
-      https.get('https://hc-ping.com/a5346934-bbb0-4147-ad6e-2f02e7712fbe');
+      https.get(process.env.SW_HEALTHCHECK_PING);
     });
   }
 }

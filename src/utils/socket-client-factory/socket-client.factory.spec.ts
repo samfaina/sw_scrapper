@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Cheerio.UtilsService } from './cheerio.utils.service';
+import { SocketClientFactory } from './socket-client.factory';
 
-describe('Cheerio.UtilsService', () => {
-  let service: Cheerio.UtilsService;
+describe('SocketClientFactory', () => {
+  let service: SocketClientFactory;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [Cheerio.UtilsService],
+      providers: [SocketClientFactory],
     }).compile();
 
-    service = module.get<Cheerio.UtilsService>(Cheerio.UtilsService);
+    service = module.get<SocketClientFactory>(SocketClientFactory);
   });
 
   it('should be defined', () => {

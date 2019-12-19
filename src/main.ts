@@ -10,8 +10,8 @@ const logger = new Logger('Scrapper Main');
 const microserviceOptions = {
   transport: Transport.TCP,
   options: {
-    host: '127.0.0.1',
-    port: 8878,
+    host: process.env.SW_SCRAPPER_MICRO_HOST,
+    port: +process.env.SW_SCRAPPER_MICRO_PORT,
   },
 };
 

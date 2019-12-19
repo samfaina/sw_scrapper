@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { CheerioUtilsService } from './cheerio.utils/cheerio.utils.service';
 import { ScrapperController } from './scrapper.controller';
 import { ScrapperService } from './scrapper.service';
+import { CheerioUtilsService } from './utils/cheerio/cheerioutils.service';
+import { SocketClientFactory } from './utils/socket-client-factory/socket-client.factory';
 
 @Module({
   imports: [],
   controllers: [ScrapperController],
-  providers: [ScrapperService, CheerioUtilsService],
+  providers: [ScrapperService, CheerioUtilsService, SocketClientFactory],
 })
 export class ScrapperModule {}
